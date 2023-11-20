@@ -3,18 +3,27 @@ const request = require('supertest')
 const db = require('../db/connection')
 const seed = require("../db/seeds/seed")
 const data = require('../db/data/test-data')
+const endpoints = require('../endpoints.json')
 
 beforeEach(() => seed(data))
 afterAll(() => db.end())
 
 describe('NC News Server', () => {
-    describe('test server is up and running', () => {
-        test('GET 200 : /api returns confirmation of running', () => {
+    describe('GET /api', () => {
+        test('GET 200 : /api returns JSON object with how-to-endpoints', () => {
             return request(app)
             .get('/api')
             .expect(200)
-            .then(({ body }) => {
-                expect(body.message).toBe('server is up and running..!')
+            .then((response) => {
+                expect(response.body).toEqual(endpoints)
+            })
+        })
+        test('GET 404 : for when endpoint does not exsist', () => {
+            return request(app)
+            .get('/something')
+            .expect(404)
+            .then (({ body }) => {
+                expect(body.message).toBe('Path Not Found')
             })
         })
     })
