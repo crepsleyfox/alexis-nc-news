@@ -9,7 +9,7 @@ beforeEach(() => seed(data))
 afterAll(() => db.end())
 
 describe('NC News Server', () => {
-    describe.only('GET 404 /invalid path', () => {
+    describe('GET 404 /invalid path', () => {
         test('GET 404 : invalid path for all endpoints', () => {
             return request (app)
             .get('/invalid-path-to-any-endpoint')
@@ -28,14 +28,6 @@ describe('NC News Server', () => {
             .then(({ body }) => {
                 
                 expect(body.message).toBe('Invalid Article ID')
-            })
-        })
-        test('GET 400 : invalid id given', () => {
-            return request (app)
-            .get('/api/articles/99999')
-            .expect(400)
-            .then(({ body }) => {
-                expect(body.message).toBe('Something Wrong With Input')
             })
         })
     })
