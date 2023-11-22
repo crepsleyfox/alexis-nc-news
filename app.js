@@ -14,11 +14,13 @@ const {
   handleServerErrors,
   handle404,
 } = require("./error_handler");
+const { getCommentByArticleId } = require("./1-controllers/comments-controller");
 
 app.get("/api", checkServerEndpoints);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/articles/:article_id/comments", getCommentByArticleId)
 
 app.all("*", handle404);
 

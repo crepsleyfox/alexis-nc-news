@@ -21,7 +21,7 @@ describe("NC News Server", () => {
     });
   });
   describe("GET CUSTOM ERRORS", () => {
-    test("GET 400 : /api/articles/:article_id with an invalid article ID", () => {
+    test("GET 400 : /api/articles/:article_id with an invalid article ID format", () => {
       return request(app)
         .get("/api/articles/invalid-id-format")
         .expect(400)
@@ -29,7 +29,7 @@ describe("NC News Server", () => {
           expect(body.message).toBe("Bad Request");
         });
     });
-    test("GET 404 : valid path but item does not exist", () => {
+    test("GET 404 : valid path but article does not exist", () => {
       return request(app)
         .get("/api/articles/1000")
         .expect(404)
@@ -37,6 +37,22 @@ describe("NC News Server", () => {
           expect(body.message).toBe("Article Not Found");
         });
     });
+    test("GET 400 : /api/articles/invalid-id-format/comments with an invalid article ID format", () => {
+        return request(app)
+        .get("/api/articles/invalid-id-format/comments")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.message).toBe("Bad Request")
+        })
+    })
+    test("GET 404 : valid path but article does not exist", () => {
+        return request(app)
+        .get("/api/articles/1000/comments")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.message).toBe("Article Not Found, comments cannot exist")
+        })
+    })
   });
   describe("GET /api", () => {
     test("GET 200 : /api returns JSON object with how-to-endpoints", () => {
@@ -88,7 +104,7 @@ describe("NC News Server", () => {
         .expect(200)
         .then(({ body }) => {
             expect(body.articles.length).toBe(13)
-            expect(body.articles).toBeSortedBy('created_at', {descending: true})
+            expect(body.articles).toBeSortedBy('created_at', { descending: true })
         })
     })
   });
@@ -99,9 +115,7 @@ describe("NC News Server", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.article.author).toBe("butter_bridge");
-          expect(body.article.title).toBe(
-            "Living in the shadow of a great man"
-          );
+          expect(body.article.title).toBe("Living in the shadow of a great man");
           expect(body.article.article_id).toBe(1);
           expect(body.article.body).toBe("I find this existence challenging");
           expect(body.article.topic).toBe("mitch");
@@ -113,4 +127,31 @@ describe("NC News Server", () => {
         });
     });
   });
+  describe("GET /apiarticles/:article_id/comments", () => {
+    test('GET 200 : return all comments for a specific article_id', () => {
+        return request(app)
+        .get('/api/articles/1/comments')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.comments.length).toBe(11)
+            body.comments.forEach((comment) => {
+                expect(typeof comment.comment_id).toBe('number')
+                expect(typeof comment.votes).toBe('number')
+                expect(typeof comment.created_at).toBe('string')
+                expect(typeof comment.author).toBe('string')
+                expect(typeof comment.body).toBe('string')
+                expect(typeof comment.article_id).toBe('number')
+            })
+        })
+    })
+    test('GET 200 : return all comments for a specific article_id in descending order by date comment was posted', () => {
+        return request(app)
+        .get('/api/articles/1/comments')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.comments.length).toBe(11)
+            expect(body.comments).toBeSortedBy('created_at', { descending: true })
+        })
+    })
+  })
 });
