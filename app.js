@@ -12,7 +12,7 @@ const {
   handlePsqlErrors,
   handleCustomErrors,
   handleServerErrors,
-  handle404
+  handle404,
 } = require("./error_handler");
 
 app.use(express.json());
@@ -27,6 +27,5 @@ app.all("*", handle404);
 app.use(handlePsqlErrors);
 app.use(handleCustomErrors);
 app.use(handleServerErrors);
-
 
 module.exports = app;
