@@ -15,8 +15,6 @@ const {
   handle404,
 } = require("./error_handler");
 
-app.use(express.json());
-
 app.get("/api", checkServerEndpoints);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);

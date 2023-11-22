@@ -63,7 +63,7 @@ describe("NC News Server", () => {
     });
   });
   describe("GET /api/articles", () => {
-    test("GET 200 : /api/articles returns all articles", () => {
+    test("GET 200 : /api/articles returns all articles without body property", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -78,6 +78,7 @@ describe("NC News Server", () => {
             expect(typeof article.votes).toBe("number");
             expect(article.article_img_url).toMatch(/^https?:\/\/\S+$/);
             expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBeUndefined()
           });
         });
     });
