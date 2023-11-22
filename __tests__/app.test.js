@@ -9,25 +9,32 @@ beforeEach(() => seed(data))
 afterAll(() => db.end())
 
 describe('NC News Server', () => {
-    describe('GET 404 /invalid path', () => {
+    describe('GET 404 errors', () => {
         test('GET 404 : invalid path for all endpoints', () => {
             return request (app)
             .get('/invalid-path-to-any-endpoint')
             .expect(404)
             .then(({ body }) => {
-                expect(body.message).toBe('Not Found')
+                expect(body.message).toBe('Path Not Found')
             })
         })
-        
     })
-    describe('GET 400 /invalid parameters', () => {
+    describe('GET CUSTOM ERRORS', () => {
         test('GET 400 : /api/articles/:article_id with an invalid article ID', () => {
             return request (app)
             .get('/api/articles/invalid-id-format')
             .expect(400)
             .then(({ body }) => {
                 
-                expect(body.message).toBe('Something wrong with input for psql')
+                expect(body.message).toBe('Bad Request')
+            })
+        })
+        test('GET 404 : valid path but item does not exist', () => {
+            return request(app)
+            .get('/api/articles/1000')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe('Article Not Found')
             })
         })
     })

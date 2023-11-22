@@ -1,6 +1,5 @@
 const { selectArticles, selectArticleById } = require("../1-models/articles-model")
 
-
 exports.getArticles = (req, res, next) => {
     selectArticles()
     .then((articles) => {
@@ -18,3 +17,4 @@ exports.getArticleById = (req, res, next) => {
         })
         .catch(next) 
 }
+

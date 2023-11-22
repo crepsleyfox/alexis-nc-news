@@ -9,10 +9,10 @@ const {
   getArticleById,
 } = require("./1-controllers/articles-controller");
 const {
-    handlePsqlErrors,
-    handleCustomErrors,
-    handleServerErrors,
-    handle404,
+  handlePsqlErrors,
+  handleCustomErrors,
+  handleServerErrors,
+  handle404
 } = require("./error_handler");
 
 app.use(express.json());
@@ -24,8 +24,9 @@ app.get("/api/articles/:article_id", getArticleById);
 
 app.all("*", handle404);
 
-app.use(handlePsqlErrors)
+app.use(handlePsqlErrors);
 app.use(handleCustomErrors);
 app.use(handleServerErrors);
+
 
 module.exports = app;

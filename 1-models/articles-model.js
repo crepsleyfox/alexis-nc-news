@@ -15,9 +15,11 @@ exports.selectArticleById = (article_id) => {
     return db.query(queryString, [article_id])
     .then(({ rows }) => {
         if (rows.length === 0) {
-            return Promise.reject({status: 404, message: 'Not Found'})
+            console.log(article_id)
+            return Promise.reject({status: 404, message: 'Article Not Found'})
         } else {
         return rows[0]
         }
     })
 }
+
