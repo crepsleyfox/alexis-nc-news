@@ -1,5 +1,5 @@
-const endpoints = require('../endpoints.json')
+const endpoints = require("../endpoints.json");
 
 exports.checkServerEndpoints = (req, res, next) => {
-    res.status(200).json(endpoints)
-}
+  res.status(200).json(endpoints).catch(next);
+};
