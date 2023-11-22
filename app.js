@@ -24,6 +24,7 @@ app.get("/api/articles/:article_id", getArticleById);
 
 app.all("*", handle404);
 
+app.use(handlePsqlErrors)
 app.use(handleCustomErrors);
 app.use(handleServerErrors);
 

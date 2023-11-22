@@ -27,7 +27,7 @@ describe('NC News Server', () => {
             .expect(400)
             .then(({ body }) => {
                 
-                expect(body.message).toBe('Invalid Article ID')
+                expect(body.message).toBe('Something wrong with input for psql')
             })
         })
     })
