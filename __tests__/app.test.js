@@ -4,7 +4,7 @@ const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const endpoints = require("../endpoints.json");
-require('jest-sorted')
+require("jest-sorted");
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -21,7 +21,7 @@ describe("NC News Server", () => {
     });
   });
   describe("GET CUSTOM ERRORS", () => {
-    test("GET 400 : /api/articles/:article_id with an invalid article ID", () => {
+    test("GET 400 : /api/articles/:article_id with an invalid article ID format", () => {
       return request(app)
         .get("/api/articles/invalid-id-format")
         .expect(400)
@@ -29,9 +29,25 @@ describe("NC News Server", () => {
           expect(body.message).toBe("Bad Request");
         });
     });
-    test("GET 404 : valid path but item does not exist", () => {
+    test("GET 404 : valid path but article does not exist", () => {
       return request(app)
         .get("/api/articles/1000")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article Not Found");
+        });
+    });
+    test("GET 400 : /api/articles/invalid-id-format/comments with an invalid article ID format", () => {
+      return request(app)
+        .get("/api/articles/invalid-id-format/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request");
+        });
+    });
+    test("GET 404 : valid path but article does not exist", () => {
+      return request(app)
+        .get("/api/articles/1000/comments")
         .expect(404)
         .then(({ body }) => {
           expect(body.message).toBe("Article Not Found");
@@ -78,19 +94,21 @@ describe("NC News Server", () => {
             expect(typeof article.votes).toBe("number");
             expect(article.article_img_url).toMatch(/^https?:\/\/\S+$/);
             expect(typeof article.comment_count).toBe("number");
-            expect(article.body).toBeUndefined()
+            expect(article.body).toBeUndefined();
           });
         });
     });
-    test('GET 200 : /api/articles return all articles sorted in descending order by date created', () => {
-        return request(app)
-        .get('/api/articles')
+    test("GET 200 : /api/articles return all articles sorted in descending order by date created", () => {
+      return request(app)
+        .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-            expect(body.articles.length).toBe(13)
-            expect(body.articles).toBeSortedBy('created_at', {descending: true})
-        })
-    })
+          expect(body.articles.length).toBe(13);
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
   });
   describe("GET /api/articles/:article_id", () => {
     test("GET 200 : /api/articles/:article_id returns specific article", () => {
@@ -109,6 +127,45 @@ describe("NC News Server", () => {
           expect(body.article.votes).toBe(100);
           expect(body.article.article_img_url).toBe(
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          );
+        });
+    });
+  });
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("GET 200 : return all comments for a specific article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(11);
+          body.comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.votes).toBe("number");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+        });
+    });
+    test("GET 200 : return all comments for a specific article_id in descending order by date comment was posted", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(11);
+          expect(body.comments).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    test('GET 200 : return "no comments found" when article exists but no comments', () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.message).toBe(
+            "No comments found for this article yet"
           );
         });
     });
