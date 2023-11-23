@@ -54,6 +54,40 @@ describe("NC News Server", () => {
         });
     });
   });
+  describe("POST CUSTOM ERRORS", () => {
+    test("POST 404 : returns error if username does not exist", () => {
+        const newComment = { username: 'i am not real', body: 'body of comment 123' }
+        return request(app)
+            .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(404)
+            .then(({ body }) => {
+            expect(body.message).toBe("User Not Found");
+          });
+    })
+    
+    
+    test("POST 400 : /api/articles/:article_id/comments with missing body of comment", () => {
+        const newComment = { username: 'lurker' }
+        return request(app)
+            .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(400)
+            .then(({ body}) => {
+            expect(body.message).toBe("Bad Request");
+          });
+      });
+      test("POST 404 : /api/articles/:article_id/comments when posting on article that does not exist", () => {
+        const newComment = { username: 'lurker', body: 'body of comment 123' }
+        return request(app)
+            .post('/api/articles/1000/comments')
+            .send(newComment)
+            .expect(404)
+            .then(({ body}) => {
+            expect(body.message).toBe("Article Not Found");
+          });
+      });
+  })
   describe("GET /api", () => {
     test("GET 200 : /api returns JSON object with how-to-endpoints", () => {
       return request(app)
@@ -170,4 +204,18 @@ describe("NC News Server", () => {
         });
     });
   });
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("POST 201 : adds a comment to a specific article", () => {
+        const newComment = { username: 'lurker', body: 'body of comment 123' }
+        return request(app)
+            .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                const { comment } = body
+                expect(comment.author).toBe('lurker')
+                expect(comment.body).toBe('body of comment 123')
+            })
+    })
+  })
 });

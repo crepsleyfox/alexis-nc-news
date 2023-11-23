@@ -14,13 +14,17 @@ const {
   handleServerErrors,
   handle404,
 } = require("./error_handler");
-const { getCommentByArticleId } = require("./1-controllers/comments-controller");
+const { getCommentByArticleId, PostComment } = require("./1-controllers/comments-controller");
+
+app.use(express.json());
 
 app.get("/api", checkServerEndpoints);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentByArticleId)
+
+app.post("/api/articles/:article_id/comments", PostComment)
 
 app.all("*", handle404);
 
