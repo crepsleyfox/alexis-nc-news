@@ -35,6 +35,7 @@ exports.insertComment = (username, body, article_id) => {
         return db
           .query(queryString, [username, body, article_id])
           .then(({ rows }) => {
+            
             return rows[0];
           });
       });

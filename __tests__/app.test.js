@@ -10,7 +10,7 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe("NC News Server", () => {
-  describe("GET * 404 errors", () => {
+  describe("ALL 404 errors", () => {
     test("GET 404 : invalid path for all endpoints", () => {
       return request(app)
         .get("/invalid-path-to-any-endpoint")
@@ -65,12 +65,20 @@ describe("NC News Server", () => {
             expect(body.message).toBe("User Not Found");
           });
     })
-    
-    
     test("POST 400 : /api/articles/:article_id/comments with missing body of comment", () => {
         const newComment = { username: 'lurker' }
         return request(app)
             .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(400)
+            .then(({ body}) => {
+            expect(body.message).toBe("Bad Request");
+          });
+      });
+      test("POST 400 : /api/articles/:article_id/comments when article_id is wrong format comment", () => {
+        const newComment = { username: 'lurker', body: 'body of comment 123' }
+        return request(app)
+            .post('/api/articles/wrongformat/comments')
             .send(newComment)
             .expect(400)
             .then(({ body}) => {
@@ -204,7 +212,7 @@ describe("NC News Server", () => {
         });
     });
   });
-  describe("POST /api/articles/:article_id/comments", () => {
+  describe.only("POST /api/articles/:article_id/comments", () => {
     test("POST 201 : adds a comment to a specific article", () => {
         const newComment = { username: 'lurker', body: 'body of comment 123' }
         return request(app)
@@ -213,8 +221,11 @@ describe("NC News Server", () => {
             .expect(201)
             .then(({ body }) => {
                 const { comment } = body
+                expect(comment).toHaveProperty('comment_id')
                 expect(comment.author).toBe('lurker')
                 expect(comment.body).toBe('body of comment 123')
+                expect(comment.votes).toBe(0)
+                expect(typeof comment.created_at).toBe('string')
             })
     })
   })
