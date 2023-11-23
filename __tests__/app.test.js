@@ -212,7 +212,7 @@ describe("NC News Server", () => {
         });
     });
   });
-  describe.only("POST /api/articles/:article_id/comments", () => {
+  describe("POST /api/articles/:article_id/comments", () => {
     test("POST 201 : adds a comment to a specific article", () => {
         const newComment = { username: 'lurker', body: 'body of comment 123' }
         return request(app)
