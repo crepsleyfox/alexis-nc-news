@@ -21,12 +21,19 @@ exports.selectArticles = () => {
 };
 
 exports.selectArticleById = (article_id) => {
-  const queryString = `SELECT * FROM articles WHERE article_id = $1;`;
+  const queryString = `
+    SELECT
+      articles.*,
+      CAST((SELECT COUNT(*) FROM comments WHERE comments.article_id = $1) AS INT) as comment_count
+    FROM articles 
+    WHERE article_id = $1`;
 
   return db.query(queryString, [article_id]).then(({ rows }) => {
     if (rows.length === 0) {
+      console.log(rows, 'PR')
       return Promise.reject({ status: 404, message: "Article Not Found" });
     } else {
+      console.log(rows)
       return rows[0];
     }
   });
