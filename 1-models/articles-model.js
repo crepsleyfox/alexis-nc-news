@@ -1,7 +1,8 @@
 const db = require("../db/connection");
 
-exports.selectArticles = () => {
-  const queryString = `SELECT
+exports.selectArticles = (topic) => {
+  let queryString = `
+        SELECT
             articles.author,
             articles.title,
             articles.article_id,
@@ -11,13 +12,28 @@ exports.selectArticles = () => {
             articles.article_img_url,
             CAST(COUNT(comments.comment_id) AS INT) comment_count
         FROM articles
-        LEFT JOIN comments ON articles.article_id = comments.article_id
-        GROUP BY articles.author, articles.title, articles.article_id
-        ORDER BY articles.created_at DESC;`;
+        LEFT JOIN comments ON articles.article_id = comments.article_id 
+        `;
 
-  return db.query(queryString).then(({ rows }) => {
-    return rows;
-  });
+  if (topic) {
+    queryString += ` WHERE articles.topic = $1 GROUP BY articles.author, articles.title, articles.article_id
+    ORDER BY articles.created_at DESC;`;
+
+    return db.query(queryString, [topic]).then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 400, message: "Invalid Topic Query"})
+      }
+      return rows;
+    });
+  } else {
+    queryString += ` GROUP BY articles.author, articles.title, articles.article_id
+  ORDER BY articles.created_at DESC;`;
+
+    return db.query(queryString).then(({ rows }) => {
+      console.log(rows)
+      return rows;
+    });
+  }
 };
 
 exports.selectArticleById = (article_id) => {
@@ -33,12 +49,9 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.updateArticleVotes = (article_id, inc_votes) => {
-  
-      const queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`;
+  const queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`;
 
-      return db.query(queryString, [inc_votes, article_id])
-    .then(({ rows }) => {
-        return rows[0];
-      });
-    }
-
+  return db.query(queryString, [inc_votes, article_id]).then(({ rows }) => {
+    return rows[0];
+  });
+};
