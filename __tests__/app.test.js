@@ -53,6 +53,14 @@ describe("NC News Server", () => {
           expect(body.message).toBe("Article Not Found");
         });
     });
+    test("GET 400 : returns error when invalid topic is given", () => {
+      return request(app)
+      .get("/api/articles?topic=bananana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid Topic Query")
+      })
+    })
   });
   describe("POST CUSTOM ERRORS", () => {
     test("POST 404 : returns error if username does not exist", () => {
@@ -65,7 +73,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe("User Not Found");
+          expect(body.message).toBe("users Not Found");
         });
     });
     test("POST 400 : /api/articles/:article_id/comments with missing body of comment", () => {
@@ -220,6 +228,37 @@ describe("NC News Server", () => {
         });
     });
   });
+  describe("GET QUERY /api/articles returns articles with correct query", () => {
+    test("GET 200 : /api/articles?topic gives the articles with the queried topic", () => {
+      return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        const {articles} = body
+        expect(articles).toHaveLength(1)
+        body.articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(article.article_img_url).toMatch(/^https?:\/\/\S+$/);
+          expect(typeof article.comment_count).toBe("number");
+          expect(article.body).toBeUndefined();
+        });
+      })
+    })
+    test.only("GET 200 : /api/articles?topic gives empty array if topic exists but there are no articles about it", () => {
+      return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body)
+        expect(body.articles).toEqual([])
+      })
+    })
+  })
   describe("GET /api/articles/:article_id", () => {
     test("GET 200 : /api/articles/:article_id returns specific article", () => {
       return request(app)
