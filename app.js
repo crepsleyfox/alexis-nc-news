@@ -15,7 +15,7 @@ const {
   handleServerErrors,
   handle404,
 } = require("./error_handler");
-const { getCommentByArticleId, PostComment } = require("./1-controllers/comments-controller");
+const { getCommentByArticleId, PostComment, deleteComment } = require("./1-controllers/comments-controller");
 
 app.use(express.json());
 
@@ -28,6 +28,8 @@ app.get("/api/articles/:article_id/comments", getCommentByArticleId)
 app.post("/api/articles/:article_id/comments", PostComment)
 
 app.patch("/api/articles/:article_id", patchArticleVotes)
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.all("*", handle404);
 
