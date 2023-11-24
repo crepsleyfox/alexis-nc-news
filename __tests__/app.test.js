@@ -26,7 +26,7 @@ describe("NC News Server", () => {
         .get("/api/articles/invalid-id-format")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request : PSQL Input error");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     });
     test("GET 404 : valid path but article does not exist", () => {
@@ -42,7 +42,7 @@ describe("NC News Server", () => {
         .get("/api/articles/invalid-id-format/comments")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request : PSQL Input error");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     });
     test("GET 404 : valid path but article does not exist", () => {
@@ -75,7 +75,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request : PSQL Input error");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     });
     test("POST 400 : /api/articles/:article_id/comments when article_id is wrong format comment", () => {
@@ -85,7 +85,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request : PSQL Input error");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     });
     test("POST 404 : /api/articles/:article_id/comments when posting on article that does not exist", () => {
@@ -117,7 +117,7 @@ describe("NC News Server", () => {
         .send(updatedData)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request : PSQL Input error");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     })
     test("PATCH 400 : returns error if inc_votes is not a number", () => {
@@ -127,19 +127,9 @@ describe("NC News Server", () => {
         .send(updatedData)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request : PSQL Input error");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
-    })
-    test("PATCH 400 : returns error if result of patch leads to a negative votes number", () => {
-        const updatedData = {inc_votes: - 1000};
-      return request(app)
-        .patch("/api/articles/1")
-        .send(updatedData)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).toBe("ERROR ! resulting votes cannot be negative");
-        });
-    })
+    })   
   });
   describe("GET /api", () => {
     test("GET 200 : /api returns JSON object with how-to-endpoints", () => {

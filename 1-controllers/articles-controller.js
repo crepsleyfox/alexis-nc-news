@@ -28,8 +28,8 @@ exports.patchArticleVotes = (req, res, next) => {
 
     updateArticleVotes(article_id, inc_votes)
     .then(() => selectArticleById(article_id))
-    .then((article) => {
-        res.status(200).send({article})
+    .then((articleUpdated) => {
+        res.status(200).send({article: articleUpdated})
     })
     .catch(next)
 }

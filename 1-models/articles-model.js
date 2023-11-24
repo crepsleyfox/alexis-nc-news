@@ -33,20 +33,12 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.updateArticleVotes = (article_id, inc_votes) => {
-  return this.selectArticleById(article_id)
-    .then((article) => {
-    if (article.votes + inc_votes < 0) {
-      return Promise.reject({
-        status: 400,
-        message: "ERROR ! resulting votes cannot be negative",
-      });
-    } else {
-      const queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2`;
+  
+      const queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`;
 
       return db.query(queryString, [inc_votes, article_id])
     .then(({ rows }) => {
         return rows[0];
       });
     }
-  });
-};
+
