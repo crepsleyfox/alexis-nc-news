@@ -16,11 +16,13 @@ const {
   handle404,
 } = require("./error_handler");
 const { getCommentByArticleId, PostComment, deleteComment } = require("./1-controllers/comments-controller");
+const { getUsers } = require("./1-controllers/users-controller");
 
 app.use(express.json());
 
 app.get("/api", checkServerEndpoints);
 app.get("/api/topics", getTopics);
+app.get("/api/users", getUsers)
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentByArticleId)
