@@ -16,7 +16,7 @@ exports.selectArticles = () => {
         ORDER BY articles.created_at DESC;`;
 
   return db.query(queryString).then(({ rows }) => {
-    return rows
+    return rows;
   });
 };
 
@@ -28,6 +28,25 @@ exports.selectArticleById = (article_id) => {
       return Promise.reject({ status: 404, message: "Article Not Found" });
     } else {
       return rows[0];
+    }
+  });
+};
+
+exports.updateArticleVotes = (article_id, inc_votes) => {
+  return this.selectArticleById(article_id)
+    .then((article) => {
+    if (article.votes + inc_votes < 0) {
+      return Promise.reject({
+        status: 400,
+        message: "ERROR ! resulting votes cannot be negative",
+      });
+    } else {
+      const queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2`;
+
+      return db.query(queryString, [inc_votes, article_id])
+    .then(({ rows }) => {
+        return rows[0];
+      });
     }
   });
 };

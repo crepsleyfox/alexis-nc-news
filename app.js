@@ -7,6 +7,7 @@ const { getTopics } = require("./1-controllers/topics-controller");
 const {
   getArticles,
   getArticleById,
+  patchArticleVotes,
 } = require("./1-controllers/articles-controller");
 const {
   handlePsqlErrors,
@@ -25,6 +26,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentByArticleId)
 
 app.post("/api/articles/:article_id/comments", PostComment)
+
+app.patch("/api/articles/:article_id", patchArticleVotes)
 
 app.all("*", handle404);
 
