@@ -26,7 +26,7 @@ describe("NC News Server", () => {
         .get("/api/articles/invalid-id-format")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request / Wrong Data Type");
+          expect(body.message).toBe("Bad Request : Wrong Data Type");
         });
     });
     test("GET 404 : valid path but article does not exist", () => {
@@ -42,7 +42,7 @@ describe("NC News Server", () => {
         .get("/api/articles/invalid-id-format/comments")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request / Wrong Data Type");
+          expect(body.message).toBe("Bad Request : Wrong Data Type");
         });
     });
     test("GET 404 : valid path but article does not exist", () => {
@@ -75,7 +75,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request / Wrong Data Type");
+          expect(body.message).toBe("Bad Request : Wrong Data Type");
         });
     });
     test("POST 400 : /api/articles/:article_id/comments when article_id is wrong format comment", () => {
@@ -85,7 +85,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request / Wrong Data Type");
+          expect(body.message).toBe("Bad Request : Wrong Data Type");
         });
     });
     test("POST 404 : /api/articles/:article_id/comments when posting on article that does not exist", () => {
@@ -117,7 +117,7 @@ describe("NC News Server", () => {
         .send(updatedData)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request / Wrong Data Type");
+          expect(body.message).toBe("Bad Request : Wrong Data Type");
         });
     })
     test("PATCH 400 : returns error if inc_votes is not a number", () => {
@@ -127,10 +127,28 @@ describe("NC News Server", () => {
         .send(updatedData)
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request / Wrong Data Type");
+          expect(body.message).toBe("Bad Request : Wrong Data Type");
         });
     })   
   });
+  describe("DELETE CUSTOM ERRORS", () => {
+    test("DELETE 404 : returns error when comment_id does not exist", () => {
+      return request(app)
+      .delete("/api/comments/10000")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Comment Id Not Found")
+      })
+    })
+    test("DELETE 400 : returns error when invalid comment_id format is given", () => {
+      return request(app)
+      .delete("/api/comments/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Bad Request : Wrong Data Type")
+      })
+    })
+  })
   describe("GET /api", () => {
     test("GET 200 : /api returns JSON object with how-to-endpoints", () => {
       return request(app)
@@ -306,4 +324,15 @@ describe("NC News Server", () => {
         });
     });
   });
+  describe("DELETE /api/comments/comment_id", () => {
+    test("GET 204 : successful comment deletion and returns status code only", () => {
+      return request(app)
+        .delete("/api/comments/18")
+        .expect(204)
+        .then(({ body }) => {
+          expect(body).toEqual({})
+          
+        })
+    })
+  })
 });
