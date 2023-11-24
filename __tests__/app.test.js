@@ -26,7 +26,7 @@ describe("NC News Server", () => {
         .get("/api/articles/invalid-id-format")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     });
     test("GET 404 : valid path but article does not exist", () => {
@@ -42,7 +42,7 @@ describe("NC News Server", () => {
         .get("/api/articles/invalid-id-format/comments")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe("Bad Request");
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
         });
     });
     test("GET 404 : valid path but article does not exist", () => {
@@ -56,46 +56,81 @@ describe("NC News Server", () => {
   });
   describe("POST CUSTOM ERRORS", () => {
     test("POST 404 : returns error if username does not exist", () => {
-        const newComment = { username: 'i am not real', body: 'body of comment 123' }
-        return request(app)
-            .post('/api/articles/1/comments')
-            .send(newComment)
-            .expect(404)
-            .then(({ body }) => {
-            expect(body.message).toBe("User Not Found");
-          });
-    })
+      const newComment = {
+        username: "i am not real",
+        body: "body of comment 123",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("User Not Found");
+        });
+    });
     test("POST 400 : /api/articles/:article_id/comments with missing body of comment", () => {
-        const newComment = { username: 'lurker' }
-        return request(app)
-            .post('/api/articles/1/comments')
-            .send(newComment)
-            .expect(400)
-            .then(({ body}) => {
-            expect(body.message).toBe("Bad Request");
-          });
-      });
-      test("POST 400 : /api/articles/:article_id/comments when article_id is wrong format comment", () => {
-        const newComment = { username: 'lurker', body: 'body of comment 123' }
-        return request(app)
-            .post('/api/articles/wrongformat/comments')
-            .send(newComment)
-            .expect(400)
-            .then(({ body}) => {
-            expect(body.message).toBe("Bad Request");
-          });
-      });
-      test("POST 404 : /api/articles/:article_id/comments when posting on article that does not exist", () => {
-        const newComment = { username: 'lurker', body: 'body of comment 123' }
-        return request(app)
-            .post('/api/articles/1000/comments')
-            .send(newComment)
-            .expect(404)
-            .then(({ body}) => {
-            expect(body.message).toBe("Article Not Found");
-          });
-      });
-  })
+      const newComment = { username: "lurker" };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
+        });
+    });
+    test("POST 400 : /api/articles/:article_id/comments when article_id is wrong format comment", () => {
+      const newComment = { username: "lurker", body: "body of comment 123" };
+      return request(app)
+        .post("/api/articles/wrongformat/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
+        });
+    });
+    test("POST 404 : /api/articles/:article_id/comments when posting on article that does not exist", () => {
+      const newComment = { username: "lurker", body: "body of comment 123" };
+      return request(app)
+        .post("/api/articles/1000/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article Not Found");
+        });
+    });
+  });
+  describe("PATCH CUSTOM ERRORS", () => {
+    test("PATCH 404 : returns error if article does not exist", () => {
+      const updatedData = { inc_votes: 10 };
+      return request(app)
+        .patch("/api/articles/1000")
+        .send(updatedData)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article Not Found");
+        });
+    });
+    test("PATCH 400 : returns error if inc_votes is missing", () => {
+        const updatedData = {};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(updatedData)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
+        });
+    })
+    test("PATCH 400 : returns error if inc_votes is not a number", () => {
+        const updatedData = { inc_votes: 'hello' };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(updatedData)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request / Wrong Data Type");
+        });
+    })   
+  });
   describe("GET /api", () => {
     test("GET 200 : /api returns JSON object with how-to-endpoints", () => {
       return request(app)
@@ -214,19 +249,61 @@ describe("NC News Server", () => {
   });
   describe("POST /api/articles/:article_id/comments", () => {
     test("POST 201 : adds a comment to a specific article", () => {
-        const newComment = { username: 'lurker', body: 'body of comment 123' }
-        return request(app)
-            .post('/api/articles/1/comments')
-            .send(newComment)
-            .expect(201)
-            .then(({ body }) => {
-                const { comment } = body
-                expect(comment).toHaveProperty('comment_id')
-                expect(comment.author).toBe('lurker')
-                expect(comment.body).toBe('body of comment 123')
-                expect(comment.votes).toBe(0)
-                expect(typeof comment.created_at).toBe('string')
-            })
-    })
-  })
+      const newComment = { username: "lurker", body: "body of comment 123" };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({ body }) => {
+          const { comment } = body;
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment.author).toBe("lurker");
+          expect(comment.body).toBe("body of comment 123");
+          expect(comment.votes).toBe(0);
+          expect(typeof comment.created_at).toBe("string");
+        });
+    });
+  });
+  describe("PATCH /api/articles/:article_jd", () => {
+    test("PATCH 200 updates the votes of an article with positive votes", () => {
+      const updatedData = { inc_votes: 10 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(updatedData)
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article.author).toBe("butter_bridge");
+          expect(article.title).toBe("Living in the shadow of a great man");
+          expect(article.article_id).toBe(1);
+          expect(article.body).toBe("I find this existence challenging");
+          expect(article.topic).toBe("mitch");
+          expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+          expect(article.votes).toBe(110);
+          expect(article.article_img_url).toBe(
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          );
+        });
+    });
+    test("PATCH 200 updates the votes of an article with negative votes", () => {
+      const updatedData = { inc_votes: -10 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(updatedData)
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article.author).toBe("butter_bridge");
+          expect(article.title).toBe("Living in the shadow of a great man");
+          expect(article.article_id).toBe(1);
+          expect(article.body).toBe("I find this existence challenging");
+          expect(article.topic).toBe("mitch");
+          expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+          expect(article.votes).toBe(90);
+          expect(article.article_img_url).toBe(
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          );
+        });
+    });
+  });
 });
