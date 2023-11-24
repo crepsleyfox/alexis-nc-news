@@ -1,7 +1,7 @@
 const db = require("../db/connection");
+const { checkExists } = require("../db/seeds/utils");
 
 const { selectArticleById } = require("./articles-model");
-const { checkUserExists } = require("./users-model.js");
 
 exports.selectCommentsByArticleId = (article_id) => {
   return selectArticleById(article_id).then(() => {
@@ -22,16 +22,13 @@ exports.selectCommentsByArticleId = (article_id) => {
 };
 
 exports.insertComment = (username, body, article_id) => {
-  return checkUserExists(username).then((userExists) => {
-    if (!userExists) {
-      return Promise.reject({ status: 404, message: "User Not Found" });
-    }
-
-    return selectArticleById(article_id).then(() => {
+  return checkExists("users", "username", username)
+  .then(() => {
+    return selectArticleById(article_id)
+    .then(() => {
       const queryString = `INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *`;
 
-      return db
-        .query(queryString, [username, body, article_id])
+      return db.query(queryString, [username, body, article_id])
         .then(({ rows }) => {
           return rows[0];
         });

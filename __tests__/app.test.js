@@ -73,7 +73,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe("User Not Found");
+          expect(body.message).toBe("users Not Found");
         });
     });
     test("POST 400 : /api/articles/:article_id/comments with missing body of comment", () => {
@@ -247,6 +247,15 @@ describe("NC News Server", () => {
           expect(typeof article.comment_count).toBe("number");
           expect(article.body).toBeUndefined();
         });
+      })
+    })
+    test.only("GET 200 : /api/articles?topic gives empty array if topic exists but there are no articles about it", () => {
+      return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body)
+        expect(body.articles).toEqual([])
       })
     })
   })
