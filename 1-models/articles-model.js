@@ -30,7 +30,6 @@ exports.selectArticles = (topic) => {
   ORDER BY articles.created_at DESC;`;
 
     return db.query(queryString).then(({ rows }) => {
-      console.log(rows)
       return rows;
     });
   }
