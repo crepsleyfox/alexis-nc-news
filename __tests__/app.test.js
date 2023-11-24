@@ -173,6 +173,21 @@ describe("NC News Server", () => {
         });
     });
   });
+  describe("GET /api/users", () => {
+    test("GET 200 : /api/users returns all users", () => {
+      return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBe(4)
+        body.users.forEach((user) => {
+          expect(typeof user.username).toBe('string')
+          expect(typeof user.name).toBe('string')
+          expect(user.avatar_url).toMatch(/^https?:\/\/\S+$/)
+        })
+      })
+    })
+  })
   describe("GET /api/articles", () => {
     test("GET 200 : /api/articles returns all articles without body property", () => {
       return request(app)
