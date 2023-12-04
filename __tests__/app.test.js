@@ -56,9 +56,9 @@ describe("NC News Server", () => {
     test("GET 400 : returns error when invalid topic is given", () => {
       return request(app)
       .get("/api/articles?topic=bananana")
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe("Invalid Topic Query")
+        expect(body.message).toBe("Resource Not Found")
       })
     })
   });
@@ -73,7 +73,7 @@ describe("NC News Server", () => {
         .send(newComment)
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe("users Not Found");
+          expect(body.message).toBe("Resource Not Found");
         });
     });
     test("POST 400 : /api/articles/:article_id/comments with missing body of comment", () => {
@@ -249,12 +249,11 @@ describe("NC News Server", () => {
         });
       })
     })
-    test.only("GET 200 : /api/articles?topic gives empty array if topic exists but there are no articles about it", () => {
+    test("GET 200 : /api/articles?topic gives empty array if topic exists but there are no articles about it", () => {
       return request(app)
       .get("/api/articles?topic=paper")
       .expect(200)
       .then(({ body }) => {
-        console.log(body)
         expect(body.articles).toEqual([])
       })
     })
@@ -264,18 +263,19 @@ describe("NC News Server", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body }) => {
-          expect(body.article.author).toBe("butter_bridge");
-          expect(body.article.title).toBe(
+        .then(({body}) => {
+          
+          expect(body.articles.author).toBe("butter_bridge");
+          expect(body.articles.title).toBe(
             "Living in the shadow of a great man"
           );
-          expect(body.article.article_id).toBe(1);
-          expect(body.article.body).toBe("I find this existence challenging");
-          expect(body.article.topic).toBe("mitch");
-          expect(body.article.created_at).toBe("2020-07-09T20:11:00.000Z");
-          expect(body.article.votes).toBe(100);
-          expect(body.article.comment_count).toBe(11)
-          expect(body.article.article_img_url).toBe(
+          expect(body.articles.article_id).toBe(1);
+          expect(body.articles.body).toBe("I find this existence challenging");
+          expect(body.articles.topic).toBe("mitch");
+          expect(body.articles.created_at).toBe("2020-07-09T20:11:00.000Z");
+          expect(body.articles.votes).toBe(100);
+          expect(body.articles.comment_count).toBe(11)
+          expect(body.articles.article_img_url).toBe(
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
           );
         });

@@ -30,16 +30,24 @@ exports.checkUserExists = (username) => {
     return rows.length > 0;
   });
 };
-exports.checkExists = (table, column, value) => {
-  const queryString = (format(`SELECT * FROM %I WHERE %I = $1;`, table, column))
 
-  return db.query(queryString, [value])
-  .then((doesExist) => {
-    
-    if (doesExist.rows.length === 0) {
-      return Promise.reject({status: 404, message: `Resource Not Found`})
-    } 
-  })
-}
+exports.checkExists = (table, column, value) => {
+  if (!value) {
+    return Promise.resolve(null);
+  } else {
+    const queryString = format(`SELECT * FROM %I WHERE %I = $1;`, table, column);
+
+    return db.query(queryString, [value])
+      .then((doesExist) => {
+        const exists = doesExist.rows.length > 0;
+
+        if (!exists) {
+          return Promise.reject({ status: 404, message: "Resource Not Found" });
+        }
+
+        return exists;
+      });
+  }
+};
 
 

@@ -2,42 +2,40 @@ const db = require("../db/connection");
 const { checkExists } = require("../db/seeds/utils");
 
 exports.selectArticles = (topic) => {
+  
   return checkExists("topics", "slug", topic)
-  .then(() => {
+    .then((topicExists) => {
       let queryString = `
         SELECT
-            articles.author,
-            articles.title,
-            articles.article_id,
-            articles.topic,
-            articles.created_at,
-            articles.votes,
-            articles.article_img_url,
-            CAST(COUNT(comments.comment_id) AS INT) comment_count
+          articles.author,
+          articles.title,
+          articles.article_id,
+          articles.topic,
+          articles.created_at,
+          articles.votes,
+          articles.article_img_url,
+          CAST(COUNT(comments.comment_id) AS INT) comment_count
         FROM articles
         LEFT JOIN comments ON articles.article_id = comments.article_id 
-        `;
+      `;
 
-      if (topic) {
-        queryString += ` WHERE articles.topic = $1 GROUP BY articles.author, articles.title, articles.article_id
-    ORDER BY articles.created_at DESC;`;
+      if (topicExists === true) {
+        queryString += ` WHERE articles.topic = $1 GROUP BY articles.author, articles.title, articles.article_id ORDER BY articles.created_at DESC;`;
 
         return db.query(queryString, [topic]).then(({ rows }) => {
           
           return rows;
         });
       } else {
-        queryString += ` GROUP BY articles.author, articles.title, articles.article_id
-  ORDER BY articles.created_at DESC;`;
+        queryString += ` GROUP BY articles.author, articles.title, articles.article_id ORDER BY articles.created_at DESC;`;
 
         return db.query(queryString).then(({ rows }) => {
-          console.log(rows)
+          
           return rows;
         });
       }
-  })
-} 
-
+    });
+};
 
 exports.selectArticleById = (article_id) => {
   const queryString = `
@@ -49,10 +47,8 @@ exports.selectArticleById = (article_id) => {
 
   return db.query(queryString, [article_id]).then(({ rows }) => {
     if (rows.length === 0) {
-      console.log(rows, 'PR')
       return Promise.reject({ status: 404, message: "Article Not Found" });
     } else {
-      console.log(rows)
       return rows[0];
     }
   });
