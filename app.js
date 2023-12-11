@@ -23,7 +23,7 @@ const {
 const { getUsers } = require("./1-controllers/users-controller");
 
 
-// app.use(cors());
+app.use(cors());
 app.use(express.json());
 
 app.get("/api", checkServerEndpoints);
